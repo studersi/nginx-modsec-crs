@@ -66,14 +66,14 @@ sub   2048R/57A82F1DD345AB09 2011-11-27
 With this in our hands, let's download the source code and the signature next to it:
 
 ```bash
-$> wget https://nginx.org/download/nginx-1.13.9.tar.gz
-$> wget https://nginx.org/download/nginx-1.13.9.tar.gz.asc
+$> wget https://nginx.org/download/nginx-1.19.1.tar.gz
+$> wget https://nginx.org/download/nginx-1.19.1.tar.gz.asc
 ```
 
 The compressed source code is a bit less than a megabyte in size. Let's now verify everything is correct:
 
 ```bash
-$> gpg --trusted-key 520A9993A1C052F8 --verify nginx-1.13.9.tar.gz.asc nginx-1.13.9.tar.gz
+$> gpg --trusted-key 520A9993A1C052F8 --verify nginx-1.19.1.tar.gz.asc nginx-1.19.1.tar.gz
 gpg: Signature made Tue Feb 20 15:10:07 2018 CET using RSA key ID A1C052F8
 gpg: Good signature from "Maxim Dounin <mdounin@mdounin.ru>"
 ```
@@ -85,7 +85,7 @@ Perfect. We're finally ready for the configuration of the compiler and the compi
 We will start by unpacking the tar archive
 
 ```bash
-$> tar -xvzf nginx-1.13.9.tar.gz
+$> tar -xvzf nginx-1.19.1.tar.gz
 ```
 
 This results in approximately 7 MB.
@@ -93,8 +93,8 @@ This results in approximately 7 MB.
 We now enter the directory and configure the compiler with our options:
 
 ```bash
-$> cd nginx-1.13.9
-$> ./configure --prefix=/opt/nginx-1.13.9 --with-http_ssl_module --with-threads --with-file-aio
+$> cd nginx-1.19.1
+$> ./configure --prefix=/opt/nginx-1.19.1 --with-http_ssl_module --with-threads --with-file-aio
 ...
 Configuration summary
   + using threads
@@ -102,14 +102,14 @@ Configuration summary
   + using system OpenSSL library
   + using system zlib library
 
-  nginx path prefix: "/opt/nginx-1.13.9"
-  nginx binary file: "/opt/nginx-1.13.9/sbin/nginx"
-  nginx modules path: "/opt/nginx-1.13.9/modules"
-  nginx configuration prefix: "/opt/nginx-1.13.9/conf"
-  nginx configuration file: "/opt/nginx-1.13.9/conf/nginx.conf"
-  nginx pid file: "/opt/nginx-1.13.9/logs/nginx.pid"
-  nginx error log file: "/opt/nginx-1.13.9/logs/error.log"
-  nginx http access log file: "/opt/nginx-1.13.9/logs/access.log"
+  nginx path prefix: "/opt/nginx-1.19.1"
+  nginx binary file: "/opt/nginx-1.19.1/sbin/nginx"
+  nginx modules path: "/opt/nginx-1.19.1/modules"
+  nginx configuration prefix: "/opt/nginx-1.19.1/conf"
+  nginx configuration file: "/opt/nginx-1.19.1/conf/nginx.conf"
+  nginx pid file: "/opt/nginx-1.19.1/logs/nginx.pid"
+  nginx error log file: "/opt/nginx-1.19.1/logs/error.log"
+  nginx http access log file: "/opt/nginx-1.19.1/logs/access.log"
   nginx http client request body temporary files: "client_body_temp"
   nginx http proxy temporary files: "proxy_temp"
   nginx http fastcgi temporary files: "fastcgi_temp"
@@ -118,7 +118,7 @@ Configuration summary
 
 ```
 
-This is where we define the target directory for the future NGINX web server. We are compiling in compliance with the _File Hierarchy Standard_ and will install NGINX under `/opt/nginx-1.13.9`. The `/opt/` file tree allows us to keep our complete installation together under a branch of the tree. If we would look at the alternative `/usr/local` instead, we would need to split binaries, configuration files and logs over multiple branches.
+This is where we define the target directory for the future NGINX web server. We are compiling in compliance with the _File Hierarchy Standard_ and will install NGINX under `/opt/nginx-1.19.1`. The `/opt/` file tree allows us to keep our complete installation together under a branch of the tree. If we would look at the alternative `/usr/local` instead, we would need to split binaries, configuration files and logs over multiple branches.
 
 NGINX comes with several dynamic modules we can enable or disable at will. But the encryption module `http_ssl` is not part of the default set. So we need to enable this with a config time option named `--with-http_ssl_module`. After this option, there are two options that affect the performance of the server: `--with-thread` and `with-file-aio`. The threads option does not only enable threads (NGINX is threads-based by default), but it lets you instruct the server to work with pools of threads that are much more dynamic when processing requests. Say you need to wait for a file to be read from the disk. With a thread pool, the server thread hands of this specialised task and jumps to the next request. As soon as the file has been read, a different thread takes over immediately. This technique allows for better use of your resources, as the server threads are never idle.
 
@@ -151,13 +151,13 @@ $> sudo make install
 Installation may also take some time.
 
 ```bash
-$> sudo chown -R `whoami` /opt/nginx-1.13.9
+$> sudo chown -R `whoami` /opt/nginx-1.19.1
 ```
 
 And now for a trick: If you work professionally with NGINX then you may have several different versions on the test server. Different versions, different patches, different set of modules, etc. all result in tedious and long pathnames with version numbers and other descriptions. To ease things, I usually create a soft link from `/nginx` to the current NGINX web server when I switch to a new version or compilation. Care must be given that we and not the root user are is the owner of the soft link (this is important in configuring the server).
 
 ```bash
-$> sudo ln -s /opt/nginx-1.13.9 /nginx
+$> sudo ln -s /opt/nginx-1.19.1 /nginx
 $> sudo chown `whoami` --no-dereference /nginx
 $> cd /nginx
 ```
@@ -214,7 +214,7 @@ nginx version: nginx/1.13.9
 built by gcc 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.9) 
 built with OpenSSL 1.0.2g  1 Mar 2016
 TLS SNI support enabled
-configure arguments: --prefix=/opt/nginx-1.13.9 --with-http_ssl_module --with-threads --with-file-aio --with-debug
+configure arguments: --prefix=/opt/nginx-1.19.1 --with-http_ssl_module --with-threads --with-file-aio --with-debug
 ```
 
 That's not much, but the basics are covered and we see which compile time options we included. Looking at the size of the binary file, we can see that it is approximately 6 MB in size.

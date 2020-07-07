@@ -21,20 +21,20 @@ We previously downloaded the source code for the web server to <i>/usr/src/nginx
 $> sudo mkdir /usr/src/modsecurity
 $> sudo chown `whoami` /usr/src/modsecurity
 $> cd /usr/src/modsecurity
-$> wget https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.0/modsecurity-v3.0.0.tar.gz
+$> wget https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.4/modsecurity-v3.0.4.tar.gz
 ```
 
 Compressed, the source code is just below 3 megabytes in size. We now need to verify the checksum. It is provided in SHA256 format.
 
 ```bash
-$> wget https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.0/modsecurity-v3.0.0.tar.gz.sha256
-$> sha256sum --check modsecurity-v3.0.0.tar.gz.sha256 
+$> wget https://github.com/SpiderLabs/ModSecurity/releases/download/v3.0.4/modsecurity-v3.0.4.tar.gz.sha256
+$> sha256sum --check modsecurity-v3.0.4.tar.gz.sha256 
 ```
 
 We expect the following response:
 
 ```bash
-modsecurity-v3.0.0.tar.gz: OK
+modsecurity-v3.0.4.tar.gz: OK
 ```
 
 ### Step 2: Unpacking and configuring the compiler
@@ -55,9 +55,9 @@ We now unpack the source code and initiate the configuration. But before this it
 The stage is thus set and we are ready for ModSecurity.
 
 ```bash
-$> tar -xvzf modsecurity-v3.0.0.tar.gz 
-$> cd modsecurity-v3.0.0/
-$> ./configure --prefix=/opt/modsecurity-3.0.0 --enable-mutex-on-pm
+$> tar -xvzf modsecurity-v3.0.4.tar.gz 
+$> cd modsecurity-v3.0.4/
+$> ./configure --prefix=/opt/modsecurity-3.0.4 --enable-mutex-on-pm
 ```
 
 We created the <i>/nginx</i> symlink in the tutorial on compiling NGINX. This again comes to our assistance, because independent from the NGINX version being used, we can now have the ModSecurity configuration always work with the same parameters and always get access to the current NGINX web server. The first two options establish the link to the NGINX binary, since we have to make sure that ModSecurity is working with the right API version. The _with-pcre_ option defines that we are using the system’s own _PCRE-Library_, or Regular Expression Library, and not the one provided by NGINX. This gives us a certain level of flexibility for updates, because we are becoming independent from NGINX in this area, which has proven to work in practice. It requires the first installed _libpcre3-dev_ package.
@@ -83,20 +83,20 @@ ModSecurity 3.0 runs standalone. It is integrated via a NGINX module that organi
 
 ```bash
 $> cd /usr/src/modsecurity
-$> wget https://github.com/SpiderLabs/ModSecurity-nginx/releases/download/v1.0.0/modsecurity-nginx-v1.0.0.tar.gz
-$> wget https://github.com/SpiderLabs/ModSecurity-nginx/releases/download/v1.0.0/modsecurity-nginx-v1.0.0.tar.gz.sha256
-$> sha256sum --check modsecurity-nginx-v1.0.0.tar.gz.sha256
-modsecurity-nginx-v1.0.0.tar.gz: OK
+$> wget https://github.com/SpiderLabs/ModSecurity-nginx/releases/download/v1.0.1/modsecurity-nginx-v1.0.1.tar.gz
+$> wget https://github.com/SpiderLabs/ModSecurity-nginx/releases/download/v1.0.1/modsecurity-nginx-v1.0.1.tar.gz.sha256
+$> sha256sum --check modsecurity-nginx-v1.0.1.tar.gz.sha256
+modsecurity-nginx-v1.0.1.tar.gz: OK
 ```
 
 This seems to be alright, let's unpack this archive and return to the NGINX source code:
 
 ```bash
-$> tar -xvzf modsecurity-nginx-v1.0.0.tar.gz
-$> cd /usr/src/nginx/nginx-1.13.9
-$> export MODSECURITY_LIB="/usr/src/modsecurity/modsecurity-v3.0.0/src/.libs/"
-$> export MODSECURITY_INC="/usr/src/modsecurity/modsecurity-v3.0.0/headers/"
-$> ./configure --prefix=/opt/nginx-1.13.9 --with-http_ssl_module --with-threads --with-file-aio --with-compat --add-dynamic-module=/usr/src/modsecurity/modsecurity-nginx-v1.0.0
+$> tar -xvzf modsecurity-nginx-v1.0.1.tar.gz
+$> cd /usr/src/nginx/nginx-1.19.1
+$> export MODSECURITY_LIB="/usr/src/modsecurity/modsecurity-v3.0.4/src/.libs/"
+$> export MODSECURITY_INC="/usr/src/modsecurity/modsecurity-v3.0.4/headers/"
+$> ./configure --prefix=/opt/nginx-1.19.1 --with-http_ssl_module --with-threads --with-file-aio --with-compat --add-dynamic-module=/usr/src/modsecurity/modsecurity-nginx-v1.0.1
 ```
 Before we can re-configure the compilation of NGINX, we need to give it two paths pointing to the ModSecurity source code path. And then with the configure command the path to the connector. Afterwards, this should be smooth. When it's done, then you can proceed and build the module. However, I also noticed, that the module could not be loaded by the previously compiled NGINX server. So we need to build that one again.
 
@@ -105,7 +105,7 @@ $> make
 ...
 $> sudo make install
 ...
-$> sudo chown -R `whoami` /opt/nginx-1.13.9
+$> sudo chown -R `whoami` /opt/nginx-1.19.1
 $> make modules
 ...
 ```
